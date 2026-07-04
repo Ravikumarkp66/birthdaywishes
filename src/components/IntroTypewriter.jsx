@@ -54,7 +54,7 @@ export default function IntroTypewriter({ sentences, onComplete }) {
       clearTimeout(startDelay);
       clearTimeout(typingTimer);
     };
-  }, [currentIndex, sentences, onStartPiano, onComplete]);
+  }, [currentIndex, sentences, onComplete]);
 
   return (
     <motion.div
