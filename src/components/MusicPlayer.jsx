@@ -1,59 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import InteractiveCanvas from './InteractiveCanvas';
 
-export default function MusicPlayer({ isLowVolume = false, fadeOut = false }) {
+export default function MusicPlayer({ isLowVolume = false, fadeOut = false, onStart }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   
   const audioRef = useRef(null);
   const fadeIntervalRef = useRef(null);
 
-  // Initialize Audio instance pointing to /public/music/birthday.mp3
   useEffect(() => {
-    const audio = new Audio('/music/birthday.mp3');
-    audio.loop = true;
-    audio.volume = 0; // start at 0 for fade-in
-    audioRef.current = audio;
-
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current);
       }
     };
   }, []);
 
-  // Autoplay Protection Bypass: Start audio on the first user interaction
-  useEffect(() => {
-    const handleFirstInteraction = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        audioRef.current.play()
-          .then(() => {
-            setIsPlaying(true);
-            // Smoothly fade volume from 0 to 0.35 over 2 seconds
-            fadeVolume(0.35, 2000);
-          })
-          .catch(err => console.warn("Autoplay audio blocked:", err));
-      }
-      cleanupListeners();
-    };
-
-    const cleanupListeners = () => {
-      document.removeEventListener('click', handleFirstInteraction);
-      document.removeEventListener('touchstart', handleFirstInteraction);
-      document.removeEventListener('keydown', handleFirstInteraction);
-    };
-
-    document.addEventListener('click', handleFirstInteraction);
-    document.addEventListener('touchstart', handleFirstInteraction);
-    document.addEventListener('keydown', handleFirstInteraction);
-
-    return cleanupListeners;
-  }, []);
-
-  // Handle prop changes: isLowVolume (dim/restore) and fadeOut (letter completed)
+  // Handle volume transitions based on props (isLowVolume & fadeOut)
   useEffect(() => {
     if (!isPlaying || isMuted) return;
 
@@ -102,6 +66,31 @@ export default function MusicPlayer({ isLowVolume = false, fadeOut = false }) {
     }, stepTime);
   };
 
+  // Autoplay Trigger: Direct user interaction handler on the welcome screen
+  const handleStart = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = 0; // start at 0 for fade-in
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
+          // Fade volume from 0 to 35% over 2 seconds
+          fadeVolume(0.35, 2000);
+          // Notify parent App to start the typewriter intro sequence
+          if (onStart) {
+            onStart();
+          }
+        })
+        .catch(err => {
+          console.warn("Audio playback gesture failed:", err);
+          // Fallback trigger in case of unexpected block
+          if (onStart) {
+            onStart();
+          }
+        });
+    }
+  };
+
   // Mute / Unmute handler
   const handleToggleMute = (e) => {
     e.stopPropagation();
@@ -118,43 +107,84 @@ export default function MusicPlayer({ isLowVolume = false, fadeOut = false }) {
     }
   };
 
-  // Do not render button if music hasn't started yet
-  if (!isPlaying) return null;
-
   return (
-    <AnimatePresence>
-      <motion.button
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 0.7, scale: 1 }}
-        whileHover={{ opacity: 1, scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={handleToggleMute}
-        className="fixed top-5 right-5 z-40 w-10 h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-md cursor-pointer flex items-center justify-center text-white/80 hover:text-white transition-colors shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
-        aria-label={isMuted ? "Unmute music" : "Mute music"}
-      >
-        {isMuted ? (
-          <span className="text-sm">🔇</span>
-        ) : (
-          <div className="flex items-end space-x-[2px] h-[14px] w-[14px] px-[1px] justify-center">
-            {/* Premium Animated Equalizer Bars */}
-            <motion.div
-              animate={{ height: [4, 14, 4] }}
-              transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-              className="w-[2px] bg-rose-gold rounded-full"
-            />
-            <motion.div
-              animate={{ height: [8, 4, 14, 8] }}
-              transition={{ repeat: Infinity, duration: 0.9, ease: "easeInOut", delay: 0.2 }}
-              className="w-[2px] bg-rose-gold rounded-full"
-            />
-            <motion.div
-              animate={{ height: [3, 11, 3] }}
-              transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut", delay: 0.4 }}
-              className="w-[2px] bg-rose-gold rounded-full"
-            />
-          </div>
-        )}
-      </motion.button>
-    </AnimatePresence>
+    <>
+      {/* JSX Audio element with auto preload and looping */}
+      <audio
+        ref={audioRef}
+        src="/music/birthday.mp3"
+        loop
+        preload="auto"
+      />
+
+      {/* Floating Mute Button (Only visible after music has started playing) */}
+      {isPlaying && (
+        <AnimatePresence>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.7, scale: 1 }}
+            whileHover={{ opacity: 1, scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleToggleMute}
+            className="fixed top-5 right-5 z-40 w-10 h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-md cursor-pointer flex items-center justify-center text-white/80 hover:text-white transition-colors shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
+            aria-label={isMuted ? "Unmute music" : "Mute music"}
+          >
+            {isMuted ? (
+              <span className="text-sm">🔇</span>
+            ) : (
+              <div className="flex items-end space-x-[2px] h-[14px] w-[14px] px-[1px] justify-center">
+                {/* Premium Animated Equalizer Bars */}
+                <motion.div
+                  animate={{ height: [4, 14, 4] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                  className="w-[2px] bg-rose-gold rounded-full"
+                />
+                <motion.div
+                  animate={{ height: [8, 4, 14, 8] }}
+                  transition={{ repeat: Infinity, duration: 0.9, ease: "easeInOut", delay: 0.2 }}
+                  className="w-[2px] bg-rose-gold rounded-full"
+                />
+                <motion.div
+                  animate={{ height: [3, 11, 3] }}
+                  transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut", delay: 0.4 }}
+                  className="w-[2px] bg-rose-gold rounded-full"
+                />
+              </div>
+            )}
+          </motion.button>
+        </AnimatePresence>
+      )}
+
+      {/* Tap to Begin Welcome Screen Overlay */}
+      {!isPlaying && (
+        <div 
+          onClick={handleStart}
+          className="absolute inset-0 bg-[#050506] flex flex-col items-center justify-center cursor-pointer z-50 overflow-hidden"
+        >
+          {/* Stars canvas running in the background */}
+          <InteractiveCanvas type="stars" />
+
+          {/* Centered card and text */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 0.8, y: 0 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="flex flex-col items-center justify-center space-y-5 z-10 text-center select-none"
+          >
+            <span className="text-xl">✨</span>
+            <h2 className="text-sm uppercase tracking-[0.25em] font-serif italic text-white/90">
+              Tap anywhere to begin
+            </h2>
+            <motion.span 
+              animate={{ scale: [1, 1.18, 1] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+              className="text-rose-gold text-lg"
+            >
+              ❤️
+            </motion.span>
+          </motion.div>
+        </div>
+      )}
+    </>
   );
 }

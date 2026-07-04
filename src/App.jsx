@@ -9,6 +9,7 @@ import MusicPlayer from './components/MusicPlayer';
 import { memories } from './data/memories';
 
 function App() {
+  const [introStarted, setIntroStarted] = useState(false);
   const [started, setStarted] = useState(false);
   const [letterCompleted, setLetterCompleted] = useState(false);
   const [activeSection, setActiveSection] = useState('intro');
@@ -45,17 +46,18 @@ function App() {
         <MusicPlayer 
           isLowVolume={activeSection === 'letter'} 
           fadeOut={letterCompleted} 
+          onStart={() => setIntroStarted(true)}
         />
 
         {/* 1. Intro Screen */}
-        {!started && (
+        {introStarted && !started && (
           <IntroContainer 
             onComplete={handleBegin} 
           />
         )}
 
         {/* 2. Interactive Scrollable Story Timeline & Memories */}
-        {started && !letterCompleted && (
+        {introStarted && started && !letterCompleted && (
           <ReactLenis root>
             <div className="w-full flex flex-col justify-start">
               
