@@ -1,28 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ReactLenis } from 'lenis/react';
-import { memories } from './data/memories';
-import { useAudio } from './hooks/useAudio';
 import IntroContainer from './components/IntroContainer';
 import Timeline from './components/Timeline';
 import MemoryCard from './components/MemoryCard';
 import FinalLetter from './components/FinalLetter';
 import EndingScene from './components/EndingScene';
 import MusicPlayer from './components/MusicPlayer';
-import { motion } from 'framer-motion';
+import { memories } from './data/memories';
 
 function App() {
   const [started, setStarted] = useState(false);
   const [letterCompleted, setLetterCompleted] = useState(false);
-  const { 
-    isPlaying, 
-    isMuted, 
-    startAudio, 
-    fadeOutAll, 
-    dimVolume,
-    restoreVolume,
-    toggleMute, 
-    playHeartbeat 
-  } = useAudio();
+  const [activeSection, setActiveSection] = useState('intro');
 
   // Scroll to top on refresh/load
   useEffect(() => {
@@ -31,24 +20,15 @@ function App() {
 
   const handleBegin = () => {
     setStarted(true);
-    // Initialize audio engine (comply with browser autoplay protection)
-    startAudio();
   };
 
   const handleLetterComplete = () => {
-    // Fade out all audio before transitioning to the silent ending
-    fadeOutAll();
     setLetterCompleted(true);
   };
 
-  const handleActiveSection = (section, index = 0) => {
+  const handleActiveSection = (section) => {
     if (!started) return;
-    
-    if (section === 'letter') {
-      dimVolume(); // decrease music volume slightly
-    } else {
-      restoreVolume(); // restore normal volume
-    }
+    setActiveSection(section);
   };
 
   return (
@@ -61,30 +41,28 @@ function App() {
       {/* Primary Mobile Container (390px responsive column) */}
       <div className="w-full max-w-[390px] min-h-screen bg-[#050506] shadow-2xl relative flex flex-col justify-start overflow-hidden border-x border-white/5">
         
-        {/* Floating Sound Controller */}
+        {/* Declarative Floating Sound Controller */}
         <MusicPlayer 
-          isPlaying={isPlaying} 
-          isMuted={isMuted} 
-          onToggle={toggleMute} 
+          isLowVolume={activeSection === 'letter'} 
+          fadeOut={letterCompleted} 
         />
 
         {/* 1. Intro Screen */}
         {!started && (
           <IntroContainer 
-            onStartPiano={() => startAudio(1)} 
-            onDimMusic={dimVolume}
             onComplete={handleBegin} 
           />
         )}
 
-        {/* 2. Main Memory Storytelling Scroll */}
+        {/* 2. Interactive Scrollable Story Timeline & Memories */}
         {started && !letterCompleted && (
-          <ReactLenis root options={{ lerp: 0.06, duration: 1.6, smoothWheel: true }}>
-            <div>
-              {/* Timeline Section */}
+          <ReactLenis root>
+            <div className="w-full flex flex-col justify-start">
+              
+              {/* Introduction Timeline */}
               <motion.div
                 onViewportEnter={() => handleActiveSection('timeline')}
-                viewport={{ amount: 0.25 }}
+                viewport={{ amount: 0.15 }}
               >
                 <Timeline />
               </motion.div>
@@ -94,7 +72,7 @@ function App() {
                 <MemoryCard 
                   key={memory.id} 
                   {...memory} 
-                  onActive={() => handleActiveSection('memory', idx)} 
+                  onActive={() => handleActiveSection('memory')} 
                 />
               ))}
 
@@ -116,12 +94,15 @@ function App() {
 
         {/* 3. Ending Heartbeat Scene */}
         {letterCompleted && (
-          <EndingScene playHeartbeat={playHeartbeat} />
+          <EndingScene />
         )}
 
       </div>
     </div>
   );
 }
+
+// Framer motion animation hooks
+import { motion } from 'framer-motion';
 
 export default App;

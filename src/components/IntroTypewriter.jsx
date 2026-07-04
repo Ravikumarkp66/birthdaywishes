@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export default function IntroTypewriter({ sentences, onStartPiano, onComplete }) {
+export default function IntroTypewriter({ sentences, onComplete }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
@@ -9,11 +9,6 @@ export default function IntroTypewriter({ sentences, onStartPiano, onComplete })
   const [fadeState, setFadeState] = useState("in"); // "in" | "out"
 
   useEffect(() => {
-    // Start background music as the intro begins
-    if (currentIndex === 0) {
-      onStartPiano();
-    }
-
     const currentSentence = sentences[currentIndex];
     setDisplayedText("");
     setIsTyping(true);

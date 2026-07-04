@@ -15,7 +15,7 @@ const getStatusText = (count) => {
   return "Let's begin...";
 };
 
-export default function IntroContainer({ onStartPiano, onDimMusic, onComplete }) {
+export default function IntroContainer({ onComplete }) {
   // Game states: 'hey-intro' | 'balloon-intro' | 'balloon-game' | 'halfway' | 'unlock' | 'birthday-message'
   const [scene, setScene] = useState('hey-intro');
   const [sentenceIndex, setSentenceIndex] = useState(0);
@@ -142,11 +142,10 @@ export default function IntroContainer({ onStartPiano, onDimMusic, onComplete })
   useEffect(() => {
     if (scene !== 'unlock') return;
     const timer = setTimeout(() => {
-      onDimMusic(); // fade volume soft
       setScene('birthday-message');
     }, 4500); // 4.5s allows checkmark to draw + 2.5s pause
     return () => clearTimeout(timer);
-  }, [scene, onDimMusic]);
+  }, [scene]);
 
   return (
     <div className="absolute inset-0 bg-[#050506] flex flex-col items-center justify-center overflow-hidden z-50">
@@ -176,7 +175,6 @@ export default function IntroContainer({ onStartPiano, onDimMusic, onComplete })
           <IntroTypewriter 
             key="intro-typewriter"
             sentences={introMessages}
-            onStartPiano={onStartPiano}
             onComplete={handleIntroComplete}
           />
         )}

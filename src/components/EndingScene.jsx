@@ -1,7 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function EndingScene({ playHeartbeat }) {
+export default function EndingScene() {
+  const playHeartbeat = () => {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+      
+      // Lub (First low-freq beat)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(55, now);
+      osc1.frequency.exponentialRampToValueAtTime(32, now + 0.15);
+      
+      gain1.gain.setValueAtTime(0, now);
+      gain1.gain.linearRampToValueAtTime(0.8, now + 0.02);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+      
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.15);
+      
+      // Dub (Second low-freq beat)
+      const delay = 0.16;
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(50, now + delay);
+      osc2.frequency.exponentialRampToValueAtTime(28, now + delay + 0.2);
+      
+      gain2.gain.setValueAtTime(0, now + delay);
+      gain2.gain.linearRampToValueAtTime(0.6, now + delay + 0.02);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.2);
+      
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + delay);
+      osc2.stop(now + delay + 0.2);
+    } catch (e) {
+      console.warn("Heartbeat synthesis error:", e);
+    }
+  };
   const [phase, setPhase] = useState(0); // 0: Counters, 1: Typist Message, 2: Heartbeat, 3: Complete Black
   const [subPhase, setSubPhase] = useState(0);
   const [heartScale, setHeartScale] = useState(1);
