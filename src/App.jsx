@@ -17,9 +17,9 @@ function App() {
     isPlaying, 
     isMuted, 
     startAudio, 
-    crossfadeTo, 
     fadeOutAll, 
     dimVolume,
+    restoreVolume,
     toggleMute, 
     playHeartbeat 
   } = useAudio();
@@ -44,16 +44,10 @@ function App() {
   const handleActiveSection = (section, index = 0) => {
     if (!started) return;
     
-    if (section === 'timeline') {
-      crossfadeTo(0); // Track 0: Drone
-    } else if (section === 'memory') {
-      if (index === 0 || index === 1) {
-        crossfadeTo(1); // Track 1: Warm Piano
-      } else if (index === 2 || index === 3) {
-        crossfadeTo(2); // Track 2: Acoustic Guitar
-      }
-    } else if (section === 'letter') {
-      crossfadeTo(3); // Track 3: Cinematic Strings
+    if (section === 'letter') {
+      dimVolume(); // decrease music volume slightly
+    } else {
+      restoreVolume(); // restore normal volume
     }
   };
 
