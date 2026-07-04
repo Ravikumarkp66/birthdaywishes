@@ -2,38 +2,56 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function EndingScene({ playHeartbeat }) {
-  const [phase, setPhase] = useState(0); // 0: "One last thing...", 1: "Thank you for existing.", 2: "Happy Birthday", 3: Heartbeat, 4: Black screen
+  const [phase, setPhase] = useState(0); // 0: Counters, 1: Typist Message, 2: Heartbeat, 3: Complete Black
+  const [subPhase, setSubPhase] = useState(0);
   const [heartScale, setHeartScale] = useState(1);
   const [heartVisible, setHeartVisible] = useState(true);
 
   // Transition between message phases
   useEffect(() => {
-    const t0 = setTimeout(() => setPhase(1), 3000); // 3s: transition to phase 1
-    const t1 = setTimeout(() => setPhase(2), 6500); // 6.5s: transition to phase 2
-    const t2 = setTimeout(() => setPhase(3), 10000); // 10s: transition to heartbeat phase
-    
-    return () => {
-      clearTimeout(t0);
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    // Stage 0: Counters (runs for 5.2s total)
+    const t0 = setTimeout(() => {
+      setPhase(1); // Transition to typewriter final messages
+      setSubPhase(1);
+    }, 5200);
+
+    return () => clearTimeout(t0);
   }, []);
+
+  useEffect(() => {
+    if (phase !== 1) return;
+
+    const s1 = setTimeout(() => setSubPhase(2), 1400); // 1.4s -> "Thank you..."
+    const s2 = setTimeout(() => setSubPhase(3), 2800); // 2.8s -> "for existing."
+    const s3 = setTimeout(() => setSubPhase(4), 4000); // 4.0s -> "❤️"
+    
+    const t1 = setTimeout(() => {
+      setPhase(2); // Transition to heartbeat
+    }, 6200);
+
+    return () => {
+      clearTimeout(s1);
+      clearTimeout(s2);
+      clearTimeout(s3);
+      clearTimeout(t1);
+    };
+  }, [phase]);
 
   // Synchronized Heartbeat Loop
   useEffect(() => {
-    if (phase !== 3) return;
+    if (phase !== 2) return;
 
     let beatCount = 0;
-    const maxBeats = 6;
+    const maxBeats = 5;
     let timeoutId;
 
     const runBeat = () => {
       if (beatCount >= maxBeats) {
         setHeartVisible(false);
-        // Transition to complete black screen after heart disappears
+        // Transition to complete black screen after heart disappears (3.5s)
         setTimeout(() => {
-          setPhase(4);
-        }, 5000);
+          setPhase(3);
+        }, 3500);
         return;
       }
 
@@ -61,7 +79,7 @@ export default function EndingScene({ playHeartbeat }) {
     };
 
     // Delay the first beat slightly
-    timeoutId = setTimeout(runBeat, 1200);
+    timeoutId = setTimeout(runBeat, 800);
 
     return () => clearTimeout(timeoutId);
   }, [phase, playHeartbeat]);
@@ -71,72 +89,103 @@ export default function EndingScene({ playHeartbeat }) {
       
       <AnimatePresence mode="wait">
         
-        {/* Phase 0: One last thing... */}
+        {/* Phase 0: Friendship Time Counters */}
         {phase === 0 && (
-          <motion.h2
-            key="last-thing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-            className="font-handwriting text-3xl text-white px-6 font-light"
-          >
-            One last thing...
-          </motion.h2>
-        )}
-
-        {/* Phase 1: Thank you for existing. */}
-        {phase === 1 && (
-          <motion.h2
-            key="thank-you"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.8 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5 }}
-            className="font-handwriting text-3xl text-rose-gold px-6 font-light"
-          >
-            Thank you for existing.
-          </motion.h2>
-        )}
-
-        {/* Phase 2: Happy Birthday text */}
-        {phase === 2 && (
           <motion.div
-            key="happy-bday"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2 }}
-            className="flex flex-col space-y-4 items-center justify-center px-6"
+            key="counters"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col space-y-6 items-center justify-center px-8 text-center max-w-[340px]"
           >
-            <h1 className="font-serif italic text-4xl text-white font-medium">
-              Happy Birthday.
-            </h1>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-white/40 font-sans font-semibold">
+              We've been friends for
+            </span>
+            <div className="flex flex-col space-y-3.5 items-start font-sans text-sm text-gray-300 font-light pl-6">
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 0.9, x: 0 }} transition={{ delay: 0.5 }} className="flex items-center space-x-3">
+                <span className="text-rose-gold text-lg">❤️</span>
+                <span className="tracking-wide">4 Years</span>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 0.9, x: 0 }} transition={{ delay: 0.8 }} className="flex items-center space-x-3">
+                <span className="text-lg">📅</span>
+                <span className="tracking-wide">1,498 Days</span>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 0.9, x: 0 }} transition={{ delay: 1.1 }} className="flex items-center space-x-3">
+                <span className="text-lg">🕒</span>
+                <span className="tracking-wide">35,952 Hours</span>
+              </motion.div>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 0.9, x: 0 }} transition={{ delay: 1.4 }} className="flex items-center space-x-3">
+                <span className="text-lg">✨</span>
+                <span className="tracking-wide">Countless Memories</span>
+              </motion.div>
+            </div>
           </motion.div>
         )}
 
-        {/* Phase 3: The Beating and Fading Heart */}
-        {phase === 3 && (
+        {/* Phase 1: One last thing typewriter reveal */}
+        {phase === 1 && (
+          <motion.div
+            key="one-last-thing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2 }}
+            className="flex flex-col space-y-5 items-center justify-center text-center px-6 font-serif italic text-white"
+          >
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={subPhase >= 1 ? { opacity: 0.5 } : { opacity: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-[9px] uppercase tracking-[0.25em] font-sans text-white/50"
+            >
+              One last thing...
+            </motion.p>
+            
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={subPhase >= 2 ? { opacity: 0.9, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="text-xl font-light tracking-wide"
+            >
+              Thank you...
+            </motion.h2>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              animate={subPhase >= 3 ? { opacity: 0.95, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className="text-xl font-light tracking-wide"
+            >
+              for existing.
+            </motion.h2>
+
+            <motion.span
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={subPhase >= 4 ? { opacity: 0.95, scale: 1 } : { opacity: 0, scale: 0.5 }}
+              transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
+              className="text-2xl text-rose-gold drop-shadow-[0_0_8px_rgba(229,193,179,0.5)]"
+            >
+              ❤️
+            </motion.span>
+          </motion.div>
+        )}
+
+        {/* Phase 2: Heartbeat visualization in silence */}
+        {phase === 2 && (
           <motion.div
             key="heartbeat-container"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 2 }}
-            className="flex flex-col items-center justify-center space-y-12"
+            className="flex flex-col items-center justify-center"
           >
-            <motion.h1
-              animate={heartVisible ? { opacity: 0.9 } : { opacity: 0 }}
-              transition={{ duration: 4 }}
-              className="font-serif italic text-4xl text-white font-medium"
-            >
-              Happy Birthday.
-            </motion.h1>
-
             <motion.div
               style={{ scale: heartScale }}
               animate={heartVisible ? { opacity: 0.8 } : { scale: 0, opacity: 0 }}
-              transition={heartVisible ? { type: "spring", stiffness: 150, damping: 10 } : { duration: 5, ease: "easeInOut" }}
-              className="w-20 h-20 text-rose-gold drop-shadow-[0_0_15px_rgba(229,193,179,0.4)]"
+              transition={heartVisible ? { type: "spring", stiffness: 150, damping: 10 } : { duration: 3.5, ease: "easeInOut" }}
+              className="w-16 h-16 text-rose-gold drop-shadow-[0_0_12px_rgba(229,193,179,0.35)]"
             >
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -150,8 +199,8 @@ export default function EndingScene({ playHeartbeat }) {
           </motion.div>
         )}
 
-        {/* Phase 4: Pitch Black Silence */}
-        {phase === 4 && (
+        {/* Phase 3: Complete Black Silence */}
+        {phase === 3 && (
           <div key="complete-black" className="w-full h-full bg-black" />
         )}
 

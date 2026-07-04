@@ -2,19 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FinalLetter({ onComplete }) {
-  const [teaserStage, setTeaserStage] = useState(0); // 0: end, 1: maybe, 2: beginning, 3: envelope
+  const [teaserStage, setTeaserStage] = useState(0); // 0: Four years, 1: Thousands, 2: Infinite, 3: heart, 4: envelope
   const [isOpen, setIsOpen] = useState(false);
   const [letterRevealed, setLetterRevealed] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setTeaserStage(1), 1800); // 1.8s -> "Or maybe..."
-    const t2 = setTimeout(() => setTeaserStage(2), 3600); // 3.6s -> "the beginning."
-    const t3 = setTimeout(() => setTeaserStage(3), 5600); // 5.6s -> show envelope
+    const t1 = setTimeout(() => setTeaserStage(1), 1800); // 1.8s -> Thousands of memories...
+    const t2 = setTimeout(() => setTeaserStage(2), 3600); // 3.6s -> Infinite reasons to be grateful.
+    const t3 = setTimeout(() => setTeaserStage(3), 5600); // 5.6s -> ❤️
+    const t4 = setTimeout(() => setTeaserStage(4), 7400); // 7.4s -> show envelope
     
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      clearTimeout(t4);
     };
   }, []);
 
@@ -34,40 +36,51 @@ export default function FinalLetter({ onComplete }) {
 
       {/* 1. Teaser Text Sequence */}
       <AnimatePresence>
-        {teaserStage < 3 && (
-          <div className="absolute flex flex-col items-center justify-center space-y-4 text-center z-10">
+        {teaserStage < 4 && (
+          <div className="absolute flex flex-col items-center justify-center space-y-5 text-center z-10">
             {teaserStage >= 0 && (
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 0.6, y: 0 }}
+                animate={{ opacity: 0.65, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 1.2 }}
-                className="text-xs uppercase tracking-[0.2em] font-sans text-white font-light"
+                className="text-xs uppercase tracking-[0.25em] font-sans text-white font-light"
               >
-                You've reached the end.
+                Four years...
               </motion.p>
             )}
             {teaserStage >= 1 && (
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 0.6, y: 0 }}
+                animate={{ opacity: 0.65, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
                 transition={{ duration: 1.2 }}
-                className="text-xs uppercase tracking-[0.2em] font-sans text-rose-gold font-light"
+                className="text-xs uppercase tracking-[0.25em] font-sans text-rose-gold font-light"
               >
-                ...or maybe
+                Thousands of memories...
               </motion.p>
             )}
             {teaserStage >= 2 && (
-              <motion.h2
+              <motion.p
                 initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 0.65, y: 0 }}
                 exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                className="text-3xl font-serif italic text-white"
+                transition={{ duration: 1.2 }}
+                className="text-xs uppercase tracking-[0.25em] font-sans text-white font-light"
               >
-                the beginning.
-              </motion.h2>
+                Infinite reasons to be grateful.
+              </motion.p>
+            )}
+            {teaserStage >= 3 && (
+              <motion.span
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 0.9, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                transition={{ type: "spring", stiffness: 120 }}
+                className="text-xl text-rose-gold drop-shadow-[0_0_8px_rgba(229,193,179,0.5)]"
+              >
+                ❤️
+              </motion.span>
             )}
           </div>
         )}
@@ -75,7 +88,7 @@ export default function FinalLetter({ onComplete }) {
 
       {/* 2. Floating Envelope */}
       <AnimatePresence>
-        {teaserStage === 3 && !letterRevealed && (
+        {teaserStage === 4 && !letterRevealed && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -147,19 +160,33 @@ export default function FinalLetter({ onComplete }) {
                 transition={{ delay: 0.5, duration: 1.5 }}
                 className="font-handwriting text-2xl leading-relaxed text-zinc-800"
               >
-                Dear Friend,
+                Happy Birthday once again, Bangara ❤️
                 <br /><br />
-                I wanted to take a moment to put into words how much our friendship truly means to me.
+                I hope this little surprise made you smile.
                 <br /><br />
-                Looking back at these memories—the coffee cafe laughs, the beach sunsets, stargazing, and walking in the downpour—makes me realize how incredibly lucky I am to have you in my life.
+                These four years have given me memories I'll always cherish, and I'm really grateful that you became such an important part of my life.
                 <br /><br />
-                You make the ordinary moments feel cinematic, and the tough days feel manageable. Thank you for always listening, for always laughing at my terrible jokes, and for just being you.
+                Yestey jagala aadru...
                 <br /><br />
-                I hope today brings you as much happiness as you bring to everyone around you. You deserve the entire world.
+                Yestey kasta bandru...
                 <br /><br />
-                With all my love,
+                Nin kai matra yavattu bidalla.
+                <br /><br />
+                Aa maatu yavattu badalagalla.
+                <br /><br />
+                Stay happy, take care of yourself, and keep smiling.
+                <br /><br />
+                Stay exactly the way you are, Bangara.
+                <br /><br />
+                Promise... yestey kasta bandru, nin kai yavattu bidalla. ❤️
+                <br /><br />
+                From,
                 <br />
-                Me
+                <span className="font-semibold text-rose-800">KP</span>
+                <br /><br />
+                To,
+                <br />
+                <span className="font-semibold text-rose-800">My Bangara ❤️</span>
               </motion.p>
             </div>
 

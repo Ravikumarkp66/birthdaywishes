@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function MemoryCard({ image, id, onActive }) {
+export default function MemoryCard({ image, id, message, onActive }) {
   // Staggered cinematic animation variants
   const containerVariants = {
     hidden: {},
@@ -79,11 +79,15 @@ export default function MemoryCard({ image, id, onActive }) {
         variants={cardVariants}
         className="w-[90%] max-w-[410px] p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-xl flex flex-col items-start text-left"
       >
-        <span className="text-[10px] uppercase tracking-[0.2em] text-rose-gold/70 font-semibold block mb-4 select-none">
-          ✍️ Your Message
+        <span className="text-[10px] uppercase tracking-[0.2em] text-rose-gold/75 font-semibold block mb-3.5 select-none">
+          ✍️ Message
         </span>
-        {/* Empty space for future manual message text updates */}
-        <div className="h-10 w-full" />
+        <p 
+          className="text-xs font-sans text-gray-200 leading-relaxed font-light whitespace-pre-line"
+          style={{ whiteSpace: 'pre-line' }}
+        >
+          {message}
+        </p>
       </motion.div>
 
       {/* Spacing underneath */}
