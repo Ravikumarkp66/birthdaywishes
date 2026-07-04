@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-handwriting: 'Caveat', cursive;
+  
+  --color-rose-gold: #E5C1B3;
+  --color-gold-accent: #EAD0B3;
+  --color-dark-obsidian: #050506;
+  --color-dark-navy: #0b0c10;
+  
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom Base Styles */
+html, body {
+  background-color: #050506;
+  color: #F3F4F6;
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* Custom scrollbar hiding */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Lenis Smooth Scroll Configuration */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Cinematic vignettes and styling helpers */
+.cinematic-vignette {
+  background: radial-gradient(circle at center, transparent 30%, rgba(5, 5, 6, 0.85) 80%, rgba(5, 5, 6, 1) 100%);
+}
+
+.letter-gradient {
+  background: linear-gradient(135deg, #FBFBFA 0%, #F5F4F0 100%);
+}
+
+/* Envelope Clip Paths */
+.clip-path-envelope-bottom {
+  clip-path: polygon(0% 100%, 50% 50%, 100% 100%);
+}
+
+.clip-path-envelope-flap {
+  clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+}
